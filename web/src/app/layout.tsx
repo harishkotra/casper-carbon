@@ -59,9 +59,31 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           </div>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
-        <footer className="mx-auto max-w-6xl border-t border-zinc-900 px-4 py-6 text-xs text-zinc-600">
-          Casper Carbon · autonomous agents verifying real-world carbon assets on Casper testnet ·
-          every agent action is an on-chain deploy
+        <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 border-t border-zinc-900 px-4 py-6 text-xs text-zinc-600">
+          <span>
+            Casper Carbon · autonomous agents verifying real-world carbon assets on Casper testnet
+            · every agent action is an on-chain deploy
+          </span>
+          <span>
+            Built by{" "}
+            <a
+              href="https://harishkotra.me"
+              target="_blank"
+              rel="noreferrer"
+              className="text-zinc-400 hover:text-emerald-400"
+            >
+              Harish Kotra
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://dailybuild.xyz"
+              target="_blank"
+              rel="noreferrer"
+              className="text-zinc-400 hover:text-emerald-400"
+            >
+              Check out my other builds
+            </a>
+          </span>
         </footer>
       </body>
     </html>

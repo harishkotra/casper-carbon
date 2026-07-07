@@ -272,3 +272,7 @@ Reads and decodes every project, listing, and counter from the live Odra state d
 ## License
 
 MIT
+
+---
+
+Built by [Harish Kotra](https://harishkotra.me) · [Check out my other builds](https://dailybuild.xyz)
