@@ -1,0 +1,33 @@
+# ── Secrets — never commit ──────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# ── Dependencies & build output ─────────────────────────
+node_modules/
+.next/
+out/
+dist/
+target/
+*.wasm
+*.tsbuildinfo
+next-env.d.ts
+
+# ── Logs & OS noise ─────────────────────────────────────
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# ── Editor / tooling ────────────────────────────────────
+.vscode/
+.idea/
+.claude/
+
+# ── Internal planning docs & superseded prototype ───────
+IMPLEMENTATION_PLAN.md
+TASKS.md
+frontend/

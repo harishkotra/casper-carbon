@@ -1,0 +1,207 @@
+{
+  "casper_contract_schema_version": 1,
+  "toolchain": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+  "authors": [],
+  "repository": null,
+  "homepage": null,
+  "contract_name": "CarbonMarketplace",
+  "contract_version": "0.1.0",
+  "types": [
+    {
+      "struct": {
+        "name": "Listing",
+        "description": null,
+        "members": [
+          {
+            "name": "id",
+            "description": null,
+            "ty": "U32"
+          },
+          {
+            "name": "seller",
+            "description": null,
+            "ty": "Key"
+          },
+          {
+            "name": "project_id",
+            "description": null,
+            "ty": "U32"
+          },
+          {
+            "name": "amount",
+            "description": null,
+            "ty": "U256"
+          },
+          {
+            "name": "price_per_token",
+            "description": null,
+            "ty": "U256"
+          },
+          {
+            "name": "active",
+            "description": null,
+            "ty": "Bool"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "entry_points": [
+    {
+      "name": "list",
+      "description": "",
+      "is_mutable": true,
+      "arguments": [
+        {
+          "name": "project_id",
+          "description": null,
+          "ty": "U32",
+          "optional": false
+        },
+        {
+          "name": "amount",
+          "description": null,
+          "ty": "U256",
+          "optional": false
+        },
+        {
+          "name": "price_per_token",
+          "description": null,
+          "ty": "U256",
+          "optional": false
+        },
+        {
+          "name": "__cargo_purse",
+          "description": null,
+          "ty": "URef",
+          "optional": false
+        }
+      ],
+      "return_ty": "U32",
+      "is_contract_context": true,
+      "access": "public"
+    },
+    {
+      "name": "buy",
+      "description": "",
+      "is_mutable": true,
+      "arguments": [
+        {
+          "name": "listing_id",
+          "description": null,
+          "ty": "U32",
+          "optional": false
+        },
+        {
+          "name": "amount",
+          "description": null,
+          "ty": "U256",
+          "optional": false
+        },
+        {
+          "name": "__cargo_purse",
+          "description": null,
+          "ty": "URef",
+          "optional": false
+        }
+      ],
+      "return_ty": "Unit",
+      "is_contract_context": true,
+      "access": "public"
+    },
+    {
+      "name": "cancel_listing",
+      "description": "",
+      "is_mutable": true,
+      "arguments": [
+        {
+          "name": "listing_id",
+          "description": null,
+          "ty": "U32",
+          "optional": false
+        }
+      ],
+      "return_ty": "Unit",
+      "is_contract_context": true,
+      "access": "public"
+    },
+    {
+      "name": "get_listing",
+      "description": "",
+      "is_mutable": false,
+      "arguments": [
+        {
+          "name": "listing_id",
+          "description": null,
+          "ty": "U32",
+          "optional": false
+        }
+      ],
+      "return_ty": {
+        "Option": "Listing"
+      },
+      "is_contract_context": true,
+      "access": "public"
+    },
+    {
+      "name": "set_fee",
+      "description": "",
+      "is_mutable": true,
+      "arguments": [
+        {
+          "name": "fee_basis_points",
+          "description": null,
+          "ty": "U32",
+          "optional": false
+        }
+      ],
+      "return_ty": "Unit",
+      "is_contract_context": true,
+      "access": "public"
+    }
+  ],
+  "events": [],
+  "call": {
+    "wasm_file_name": "CarbonMarketplace.wasm",
+    "description": "",
+    "arguments": [
+      {
+        "name": "odra_cfg_package_hash_key_name",
+        "description": "The arg name for the package hash key name.",
+        "ty": "String",
+        "optional": false
+      },
+      {
+        "name": "odra_cfg_allow_key_override",
+        "description": "If true and the key specified in odra_cfg_package_hash_key_name already exists, it will be overwritten.",
+        "ty": "Bool",
+        "optional": false
+      },
+      {
+        "name": "odra_cfg_is_upgradable",
+        "description": "The arg name for the contract upgradeability setting.",
+        "ty": "Bool",
+        "optional": false
+      },
+      {
+        "name": "odra_cfg_is_upgrade",
+        "description": "The arg name for telling the installer that the contract is being upgraded.",
+        "ty": "Bool",
+        "optional": false
+      },
+      {
+        "name": "admin",
+        "description": null,
+        "ty": "Key",
+        "optional": false
+      },
+      {
+        "name": "token_contract",
+        "description": null,
+        "ty": "Key",
+        "optional": false
+      }
+    ]
+  }
+}

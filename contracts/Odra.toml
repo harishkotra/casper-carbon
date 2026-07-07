@@ -1,0 +1,11 @@
+[[contracts]]
+fqn = "agent_registry::AgentRegistry"
+
+[[contracts]]
+fqn = "registry::CarbonProjectRegistry"
+
+[[contracts]]
+fqn = "token::CarbonCreditToken"
+
+[[contracts]]
+fqn = "marketplace::CarbonMarketplace"

@@ -1,0 +1,136 @@
+{
+  "name": "CarbonMarketplace",
+  "events": [],
+  "entrypoints": [
+    {
+      "name": "init",
+      "args": [
+        {
+          "name": "admin",
+          "ty": "Key",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        },
+        {
+          "name": "token_contract",
+          "ty": "Key",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": true,
+      "return_ty": "Unit",
+      "ty": "Constructor",
+      "attributes": []
+    },
+    {
+      "name": "list",
+      "args": [
+        {
+          "name": "project_id",
+          "ty": "U32",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        },
+        {
+          "name": "amount",
+          "ty": "U256",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        },
+        {
+          "name": "price_per_token",
+          "ty": "U256",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": true,
+      "return_ty": "U32",
+      "ty": "Public",
+      "attributes": [
+        "Payable"
+      ]
+    },
+    {
+      "name": "buy",
+      "args": [
+        {
+          "name": "listing_id",
+          "ty": "U32",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        },
+        {
+          "name": "amount",
+          "ty": "U256",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": true,
+      "return_ty": "Unit",
+      "ty": "Public",
+      "attributes": [
+        "Payable"
+      ]
+    },
+    {
+      "name": "cancel_listing",
+      "args": [
+        {
+          "name": "listing_id",
+          "ty": "U32",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": true,
+      "return_ty": "Unit",
+      "ty": "Public",
+      "attributes": []
+    },
+    {
+      "name": "get_listing",
+      "args": [
+        {
+          "name": "listing_id",
+          "ty": "U32",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": false,
+      "return_ty": {
+        "Option": "Any"
+      },
+      "ty": "Public",
+      "attributes": []
+    },
+    {
+      "name": "set_fee",
+      "args": [
+        {
+          "name": "fee_basis_points",
+          "ty": "U32",
+          "is_ref": false,
+          "is_slice": false,
+          "is_required": true
+        }
+      ],
+      "is_mutable": true,
+      "return_ty": "Unit",
+      "ty": "Public",
+      "attributes": []
+    }
+  ]
+}
