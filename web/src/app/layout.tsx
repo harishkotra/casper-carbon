@@ -60,8 +60,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
         <footer className="mx-auto max-w-6xl border-t border-zinc-900 px-4 py-6 text-xs text-zinc-600">
-          Casper Agentic Buildathon 2026 · autonomous agents verifying real-world carbon assets on
-          Casper testnet · every agent action is an on-chain deploy
+          Casper Carbon · autonomous agents verifying real-world carbon assets on Casper testnet ·
+          every agent action is an on-chain deploy
         </footer>
       </body>
     </html>
