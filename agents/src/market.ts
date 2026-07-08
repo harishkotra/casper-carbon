@@ -86,8 +86,8 @@ async function main() {
   async function poll() {
     try {
       await syncListings();
-    } catch (err) {
-      console.error(`[Market] Poll error:`, err);
+    } catch (err: any) {
+      console.error(`[Market] Poll error: ${err?.message ?? err} — retrying next poll`);
     }
   }
 

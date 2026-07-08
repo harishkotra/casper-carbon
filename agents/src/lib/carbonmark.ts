@@ -1,18 +1,32 @@
 import { config } from "./config.js";
 import type { CarbonData } from "../types.js";
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 async function carbonmarkFetch<T>(path: string): Promise<T> {
-  const url = `${config.CARBON_API_URL}${path}`;
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${config.CARBON_API_KEY}`,
-      Accept: "application/json",
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`Carbonmark API error ${response.status} for ${url}: ${response.statusText}`);
+  const url = `${config.CARBON_API_URL.replace(/\/+$/, "")}${path}`;
+  let lastError: Error = new Error("unreachable");
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) await sleep(2000 * attempt);
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${config.CARBON_API_KEY}`,
+          Accept: "application/json",
+        },
+        signal: AbortSignal.timeout(15000),
+      });
+      if (response.ok) return response.json() as Promise<T>;
+      lastError = new Error(`Carbonmark API error ${response.status} for ${url}: ${response.statusText}`);
+      // Retry only transient gateway errors; 4xx are permanent
+      if (response.status < 500) break;
+      console.warn(`[Carbonmark] ${response.status} on ${path}, retrying (${attempt + 1}/3)...`);
+    } catch (err) {
+      lastError = err as Error;
+      console.warn(`[Carbonmark] ${lastError.message} on ${path}, retrying (${attempt + 1}/3)...`);
+    }
   }
-  return response.json() as Promise<T>;
+  throw lastError;
 }
 
 export interface CarbonmarkProject {
@@ -75,9 +89,19 @@ export async function searchProjectsByName(name: string): Promise<CarbonmarkProj
 }
 
 export async function fetchCarbonPrice(projectKey: string): Promise<number | null> {
-  const prices = await carbonmarkFetch<CarbonmarkPriceSource[]>(
-    `/prices?projectIds=${encodeURIComponent(projectKey)}&assetPriceType=listing`,
-  );
+  let prices: CarbonmarkPriceSource[];
+  try {
+    prices = await carbonmarkFetch<CarbonmarkPriceSource[]>(
+      `/prices?projectIds=${encodeURIComponent(projectKey)}&assetPriceType=listing`,
+    );
+  } catch (err) {
+    // /prices is occasionally down — fall back to the project's own listed
+    // price from /carbonProjects (still live Carbonmark data, same floor)
+    console.warn(`[Carbonmark] /prices unavailable, falling back to project price`);
+    const project = await carbonmarkFetch<CarbonmarkProject>(`/carbonProjects/${projectKey}`);
+    const p = parseFloat(project.price);
+    return Number.isFinite(p) ? Math.max(p, 5) : null;
+  }
   if (prices.length === 0) return null;
   // Use median price instead of minimum to avoid outlier low-quality credits skewing the market
   const sorted = [...prices].sort((a, b) => a.baseUnitPrice - b.baseUnitPrice);

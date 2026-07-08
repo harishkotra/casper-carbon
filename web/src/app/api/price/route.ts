@@ -9,11 +9,19 @@ export async function GET() {
   try {
     const base = (process.env.CARBON_API_URL || "https://v19.api.carbonmark.com").replace(/\/$/, "");
     const key = process.env.CARBON_PROJECT_KEY || "";
+    const headers = { Authorization: `Bearer ${process.env.CARBON_API_KEY}`, Accept: "application/json" };
     const res = await fetch(
       `${base}/prices?projectIds=${encodeURIComponent(key)}&assetPriceType=listing`,
-      { headers: { Authorization: `Bearer ${process.env.CARBON_API_KEY}`, Accept: "application/json" }, cache: "no-store" },
-    );
-    if (!res.ok) throw new Error(`Carbonmark ${res.status}`);
+      { headers, cache: "no-store", signal: AbortSignal.timeout(15000) },
+    ).catch(() => null);
+    if (!res || !res.ok) {
+      // /prices is occasionally down — fall back to the project's own listed price
+      const pr = await fetch(`${base}/carbonProjects/${key}`, { headers, cache: "no-store", signal: AbortSignal.timeout(15000) });
+      if (!pr.ok) throw new Error(`Carbonmark ${pr.status}`);
+      const project: { price: string } = await pr.json();
+      const p = parseFloat(project.price);
+      return NextResponse.json({ price: Number.isFinite(p) ? Math.max(p, 5) : null, projectKey: key, fallback: true });
+    }
     const prices: { baseUnitPrice: number }[] = await res.json();
     if (!prices.length) return NextResponse.json({ price: null, projectKey: key });
     const sorted = [...prices].sort((a, b) => a.baseUnitPrice - b.baseUnitPrice);
