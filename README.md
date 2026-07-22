@@ -278,9 +278,6 @@ Reads and decodes every project, listing, and counter from the live Odra state d
 | Dashboard with live chain state | ✅ Live |
 | CSPR.click wallet integration | ✅ Live |
 | Verifiable AI reasoning hashes | ✅ Live |
-| Demo video | 📝 Script ready |
-| Casper Agentic Buildathon final round | ⏳ Submitting July 26 |
-| Mainnet | 🔜 Post-buildathon |
 
 ---
 
@@ -311,20 +308,3 @@ Removed all `as unknown as T` casts in `agents/src/lib/casper.ts` — replaced w
 
 ### Error states
 Added `ErrorCard` and `EmptyState` shared components. Every page (dashboard, projects, agents, marketplace) now renders styled error cards on fetch failure and empty-state messages when data is absent.
-
-### Deployment & documentation
-- `vercel.json` — framework config with env var stubs
-- `DEMO_VIDEO_SCRIPT.md` — 3-minute demo script
-- README — roadmap updated with ✅ for shipped items, launch plan table, Twitter link in footer
-
----
-
-## License
-
-MIT
-
----
-
-Built by [Harish Kotra](https://harishkotra.me) · [Check out my other builds](https://dailybuild.xyz)
-
-**Questions?** Open an issue or find me on [Twitter / X](https://x.com/harish_kotra)
