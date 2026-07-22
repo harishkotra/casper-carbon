@@ -1,3 +1,6 @@
+[backend]
+type = "casper"
+
 [[contracts]]
 fqn = "agent_registry::AgentRegistry"
 

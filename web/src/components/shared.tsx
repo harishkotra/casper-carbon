@@ -104,6 +104,18 @@ function describe(item: ActivityItem): string {
   }
 }
 
+export function ErrorCard({ message }: { message: string }) {
+  return (
+    <div className="rounded-lg border border-red-800 bg-red-900/20 px-4 py-3 text-sm text-red-400">
+      {message}
+    </div>
+  );
+}
+
+export function EmptyState({ message }: { message: string }) {
+  return <div className="py-12 text-center text-sm text-zinc-600">{message}</div>;
+}
+
 export function ActivityFeed({ items, limit }: { items: ActivityItem[]; limit?: number }) {
   const shown = limit ? items.slice(0, limit) : items;
   if (!shown.length) return <div className="py-8 text-center text-sm text-zinc-600">No agent activity yet</div>;

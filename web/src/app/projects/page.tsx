@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePoll, short, explorer, timeAgo } from "@/lib/ui";
-import { SkeletonCard, StatusBadge } from "@/components/shared";
+import { ErrorCard, EmptyState, SkeletonCard, StatusBadge } from "@/components/shared";
 import type { ChainProject } from "@/lib/casper-read";
 
 const PIPELINE = ["Pending", "Verified", "Active"] as const;
@@ -172,11 +172,13 @@ export default function ProjectsPage() {
           verifier agent, with the full LLM reasoning committed on-chain as a SHA-256 hash.
         </p>
       </div>
-      {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <ErrorCard message={error} />}
       <div className="grid gap-4 md:grid-cols-2">
         {loading
           ? Array.from({ length: 4 }, (_, i) => <SkeletonCard key={i} lines={4} />)
-          : (projects ?? []).map((p) => <ProjectCard key={p.id} project={p} />)}
+          : !error && projects && projects.length === 0
+            ? <div className="md:col-span-2"><EmptyState message="No projects registered yet — run the verifier agent to create one" /></div>
+            : (projects ?? []).map((p) => <ProjectCard key={p.id} project={p} />)}
       </div>
     </div>
   );

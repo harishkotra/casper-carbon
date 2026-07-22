@@ -7,10 +7,10 @@ import type { Project } from "./types.js";
 async function checkVerifiedProjects(): Promise<void> {
   console.log(`\n[Compliance] Monitoring active/verified projects for fraud signals...`);
 
-  const projectCount = await queryContractState<number>(
+  const projectCount = await queryContractState(
     config.REGISTRY_CONTRACT_HASH,
     "next_project_id",
-  );
+  ) as number | null;
 
   if (!projectCount) {
     console.log(`[Compliance] No projects found on chain`);
@@ -18,10 +18,10 @@ async function checkVerifiedProjects(): Promise<void> {
   }
 
   for (let id = 0; id < projectCount; id++) {
-    const project = await queryContractState<Project>(
+    const project = await queryContractState(
       config.REGISTRY_CONTRACT_HASH,
       `projects[${id}]`,
-    );
+    ) as Project | null;
 
     if (!project) continue;
     if (project.status !== "Active" && project.status !== "Verified") continue;

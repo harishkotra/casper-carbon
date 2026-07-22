@@ -1,6 +1,6 @@
 "use client";
 import { usePoll, explorer, short } from "@/lib/ui";
-import { SkeletonCard } from "@/components/shared";
+import { ErrorCard, EmptyState, SkeletonCard } from "@/components/shared";
 import type { ChainAgent } from "@/lib/casper-read";
 
 type AgentRow = ChainAgent & { role: string; publicKey: string; accountHash: string };
@@ -32,10 +32,11 @@ export default function AgentsPage() {
         </p>
       </div>
 
-      {error && <div className="text-sm text-red-400">{error}</div>}
+      {error && <ErrorCard message={error} />}
 
       <div className="grid gap-4 md:grid-cols-2">
         {loading && Array.from({ length: 2 }, (_, i) => <SkeletonCard key={i} lines={5} />)}
+        {!loading && !error && agents && agents.length === 0 && <div className="md:col-span-2"><EmptyState message="No agents registered on-chain yet" /></div>}
         {(agents ?? []).map((agent) => {
           const meta = ROLE_META[agent.role] ?? { icon: "🤖", blurb: "" };
           return (

@@ -3,6 +3,7 @@ use odra::prelude::*;
 use odra::ContractRef;
 
 use crate::agent_registry::{AgentRegistryContractRef, AgentType};
+use crate::token::CarbonCreditTokenContractRef;
 
 #[odra::module]
 pub struct CarbonProjectRegistry {
@@ -119,6 +120,11 @@ impl CarbonProjectRegistry {
 
         self.projects.set(&project_id, project);
         self.record_agent_success(&caller, true);
+
+        if let Some(token_addr) = self.token_contract.get() {
+            let mut token_ref = CarbonCreditTokenContractRef::new(self.env(), token_addr);
+            token_ref.mint(&caller, &credit_supply);
+        }
     }
 
     pub fn activate_project(&mut self, project_id: u32) {

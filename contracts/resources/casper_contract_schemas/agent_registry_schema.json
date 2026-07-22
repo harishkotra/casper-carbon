@@ -62,7 +62,7 @@
             "ty": "Unit"
           },
           {
-            "name": "Marker",
+            "name": "Market",
             "description": null,
             "discriminant": 1,
             "ty": "Unit"

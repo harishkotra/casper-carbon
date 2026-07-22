@@ -26,7 +26,7 @@ async function syncListings(): Promise<void> {
   console.log(`[Market] External spot price: $${externalPrice}/tonne`);
 
   const rpc = getRpcClient();
-  const listingCount = await queryContractState<number>(
+  const listingCount = await queryContractState(
     config.MARKETPLACE_CONTRACT_HASH,
     "next_listing_id",
   ) as number | null;
@@ -40,10 +40,10 @@ async function syncListings(): Promise<void> {
   let adjusted = 0;
 
   for (let id = 0; id < listingCount; id++) {
-    const listing = await queryContractState<Listing>(
+    const listing = await queryContractState(
       config.MARKETPLACE_CONTRACT_HASH,
       `listings[${id}]`,
-    );
+    ) as Listing | null;
 
     if (!listing || !listing.active) continue;
 

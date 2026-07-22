@@ -15,10 +15,10 @@ async function fetchCarbonProjectData(projectId: number): Promise<CarbonData | n
   if (config.CARBON_PROJECT_KEY) {
     return await fetchProjectByKey(config.CARBON_PROJECT_KEY);
   }
-  const project = await queryContractState<Project>(
+  const project = await queryContractState(
     config.REGISTRY_CONTRACT_HASH,
     `projects[${projectId}]`,
-  );
+  ) as Project | null;
   if (!project || !project.name) {
     console.log(`[Verifier] No project data on chain for #${projectId}`);
     return null;
@@ -32,10 +32,10 @@ async function fetchCarbonProjectData(projectId: number): Promise<CarbonData | n
 }
 
 async function checkPendingProjects(): Promise<number[]> {
-  const projectCount = await queryContractState<number>(
+  const projectCount = await queryContractState(
     config.REGISTRY_CONTRACT_HASH,
     "next_project_id",
-  );
+  ) as number | null;
   if (!projectCount) {
     console.log(`[Verifier] next_project_id not found on chain`);
     return [];
@@ -44,10 +44,10 @@ async function checkPendingProjects(): Promise<number[]> {
 
   const pendingIds: number[] = [];
   for (let id = 0; id < projectCount; id++) {
-    const project = await queryContractState<Project>(
+    const project = await queryContractState(
       config.REGISTRY_CONTRACT_HASH,
       `projects[${id}]`,
-    );
+    ) as Project | null;
     if (project && project.status === "Pending") {
       pendingIds.push(id);
     }
@@ -78,7 +78,7 @@ async function submitVerification(
     },
     "50000000000",
   );
-  console.log(`[Verifier] Verification confirmed: ${deployHash}`);
+    console.log(`[Verifier] Verification confirmed: ${deployHash}`);
 
   try {
     const activateHash = await callContractEntryPoint(
@@ -90,6 +90,23 @@ async function submitVerification(
     console.log(`[Verifier] Project activated: ${activateHash}`);
   } catch (err) {
     console.warn(`[Verifier] activate_project failed (may already be active):`, err);
+  }
+
+  if (config.TOKEN_CONTRACT_HASH && config.MARKETPLACE_CONTRACT_HASH) {
+    try {
+      const approveHash = await callContractEntryPoint(
+        config.TOKEN_CONTRACT_HASH,
+        "approve",
+        {
+          spender: `hash-${config.MARKETPLACE_CONTRACT_HASH}`,
+          amount: String(supply),
+        },
+        "5000000000",
+      );
+      console.log(`[Verifier] Marketplace approved to spend ${supply} CARBON: ${approveHash}`);
+    } catch (err) {
+      console.warn(`[Verifier] approve failed:`, err);
+    }
   }
 
   if (config.MARKETPLACE_CONTRACT_HASH) {

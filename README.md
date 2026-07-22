@@ -261,11 +261,61 @@ Reads and decodes every project, listing, and counter from the live Odra state d
 
 ## Roadmap
 
-- **CSPR.click wallet integration** — buy and retire credits in-browser with your own wallet; retirement burns CARBON and issues a verifiable on-chain certificate.
-- **Token flow completion** — registry-driven `mint()` on verification so listed credits are backed by transferable CEP-18 balances end-to-end.
+- ✅ **CSPR.click wallet integration** — buy credits in-browser with your own wallet; deploy params are built server-side and submitted client-side via CSPR.click (live on Marketplace).
+- ✅ **Token flow completion** — registry-driven `mint()` on verification so listed credits are backed by transferable CEP-18 balances end-to-end (live in CarbonProjectRegistry + CarbonCreditToken).
 - **x402-metered data feeds** — satellite canopy analysis and news APIs purchased per-request by the compliance agent, priced in CSPR.
 - **Multi-verifier consensus** — N independent verifier agents with stake-weighted scoring; slashing burns agent stake, not just reputation.
 - **Mainnet launch** — with real registry partnerships (Verra/Gold Standard bridged data) and institutional retirement reporting.
+
+---
+
+## Launch plan
+
+| Step | Status |
+|------|--------|
+| Odra contracts deployed + unit tests passing | ✅ Live on testnet |
+| All 3 agents running autonomously | ✅ Live |
+| Dashboard with live chain state | ✅ Live |
+| CSPR.click wallet integration | ✅ Live |
+| Verifiable AI reasoning hashes | ✅ Live |
+| Demo video | 📝 Script ready |
+| Casper Agentic Buildathon final round | ⏳ Submitting July 26 |
+| Mainnet | 🔜 Post-buildathon |
+
+---
+
+## v2 — Casper Agentic Buildathon 2026 Final Round
+
+This update (July 2026) adds production-hardening, wallet integration, and polish ahead of the final round.
+
+### Critical bug fixes
+- **Marker → Market** — `AgentType::Marker` renamed to `AgentType::Market` across all contracts, agent files, and TypeScript types
+- **Token minting on verification** — `CarbonProjectRegistry::verify_project` now calls `CarbonCreditToken::mint` so credits are minted atomically with verification
+- **Approve step in listing** — `verifier.ts` calls `approve()` on the token contract before `list()` so the marketplace can transfer credits
+- **Build fixed** — `Odra.toml` pinned to Casper backend, `.cargo/config.toml` added `--allow-undefined`, `rust-toolchain` set to nightly-2026-06-24, Odra deps pinned to `=2.8.0`
+
+### Wallet integration (CSPR.click)
+- `wallet.tsx` — React context + `useWallet` hook wrapping CSPR.click SDK
+- `wallet-button.tsx` — `HeaderWallet` component in the nav bar; `WalletBar` + `BuyButton` on the marketplace page
+- `build-buy` API route — returns unsigned deploy params for any listing
+- `submit-deploy` API route — proxies the user-signed deploy to Casper RPC
+
+### Agent live status
+Dashboard shows green/gray dot per agent (Verifier, Compliance) based on whether a deploy was seen in the last 40 seconds — refreshed every 10s via CSPR.cloud.
+
+### Verifiable AI hero section
+New callout on the dashboard explaining the SHA-256 commitment model: every LLM judgment is hash-committed on-chain and verifiable in-browser.
+
+### TypeScript safety
+Removed all `as unknown as T` casts in `agents/src/lib/casper.ts` — replaced with typed union return and explicit `as Type` casts at call sites. Agents and web both compile with `tsc --noEmit`.
+
+### Error states
+Added `ErrorCard` and `EmptyState` shared components. Every page (dashboard, projects, agents, marketplace) now renders styled error cards on fetch failure and empty-state messages when data is absent.
+
+### Deployment & documentation
+- `vercel.json` — framework config with env var stubs
+- `DEMO_VIDEO_SCRIPT.md` — 3-minute demo script
+- README — roadmap updated with ✅ for shipped items, launch plan table, Twitter link in footer
 
 ---
 
@@ -276,3 +326,5 @@ MIT
 ---
 
 Built by [Harish Kotra](https://harishkotra.me) · [Check out my other builds](https://dailybuild.xyz)
+
+**Questions?** Open an issue or find me on [Twitter / X](https://x.com/harish_kotra)

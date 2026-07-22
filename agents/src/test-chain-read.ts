@@ -12,17 +12,17 @@ function check(cond: boolean, msg: string) {
 
 async function main() {
   console.log("— Registry —");
-  const projectCount = await queryContractState<number>(
+  const projectCount = await queryContractState(
     config.REGISTRY_CONTRACT_HASH,
     "next_project_id",
-  );
+  ) as number | null;
   check(typeof projectCount === "number" && projectCount! > 0, `next_project_id = ${projectCount}`);
 
   for (let id = 0; id < (projectCount ?? 0); id++) {
-    const p = await queryContractState<Project>(
+    const p = await queryContractState(
       config.REGISTRY_CONTRACT_HASH,
       `projects[${id}]`,
-    );
+    ) as Project | null;
     if (!p) { check(false, `projects[${id}] missing`); continue; }
     const nameOk = typeof p.name === "string" && p.name.length > 0 && /^[\x20-\x7E]+$/.test(p.name);
     const statusOk = ["Pending", "Verified", "Active", "Slashed"].includes(p.status as string);
@@ -32,17 +32,17 @@ async function main() {
   }
 
   console.log("\n— Marketplace —");
-  const listingCount = await queryContractState<number>(
+  const listingCount = await queryContractState(
     config.MARKETPLACE_CONTRACT_HASH,
     "next_listing_id",
-  );
+  ) as number | null;
   check(typeof listingCount === "number", `next_listing_id = ${listingCount}`);
 
   for (let id = 0; id < (listingCount ?? 0); id++) {
-    const l = await queryContractState<Listing>(
+    const l = await queryContractState(
       config.MARKETPLACE_CONTRACT_HASH,
       `listings[${id}]`,
-    );
+    ) as Listing | null;
     if (!l) { check(false, `listings[${id}] missing`); continue; }
     check((l as any).id === id && typeof l.active === "boolean",
       `listings[${id}]: project=${l.project_id} amount=${l.amount} price=${l.price_per_token} active=${l.active}`);

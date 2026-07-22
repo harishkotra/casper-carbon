@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import { blake2b } from "@noble/hashes/blake2.js";
 import { config } from "./config.js";
+import type { Project, Listing } from "../types.js";
 import type { RpcClient, PrivateKey, PublicKey } from "casper-js-sdk";
 import CasperSDK from "casper-js-sdk";
 const {
@@ -332,14 +333,13 @@ function getFieldIndex(contractHash: string, fieldName: string): number | null {
   return null;
 }
 
-export async function queryContractState<T>(
+export async function queryContractState(
   contractHash: string,
   keySpec: string,
-): Promise<T | null> {
+): Promise<number | Project | Listing | string | null> {
   const bare = contractHash.replace(/^hash-/, "");
   const seedUref = await getStateUref(bare);
 
-  // keySpec format: "fieldName" for Var, "fieldName[u32]" for Mapping<u32,V>
   let dictKey: string;
   const mappingMatch = keySpec.match(/^(\w+)\[(\d+)\]$/);
 
@@ -359,19 +359,17 @@ export async function queryContractState<T>(
   const raw = await queryDict(seedUref, dictKey);
   if (!raw || raw.length === 0) return null;
 
-  // Deserialize based on the field type
   if (keySpec === "next_project_id" || keySpec === "next_listing_id") {
-    return decodeU32(raw) as unknown as T;
+    return decodeU32(raw);
   }
   if (keySpec.startsWith("projects[")) {
-    return decodeProject(raw) as unknown as T;
+    return decodeProject(raw);
   }
   if (keySpec.startsWith("listings[")) {
-    return decodeListing(raw) as unknown as T;
+    return decodeListing(raw);
   }
 
-  // Generic: return the raw bytes as hex string for caller to handle
-  return Buffer.from(raw).toString("hex") as unknown as T;
+  return Buffer.from(raw).toString("hex");
 }
 
 export async function callContractEntryPoint(

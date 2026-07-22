@@ -16,7 +16,7 @@ export interface Project {
 export interface AgentInfo {
   address: string;
   name: string;
-  agent_type: "Verifier" | "Marker" | "Compliance";
+  agent_type: "Verifier" | "Market" | "Compliance";
   reputation_score: number;
   total_verifications: number;
   successful_verifications: number;

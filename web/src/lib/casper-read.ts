@@ -146,7 +146,7 @@ export interface ChainListing {
 export interface ChainAgent {
   address: string;
   name: string;
-  agent_type: "Verifier" | "Marker" | "Compliance";
+  agent_type: "Verifier" | "Market" | "Compliance";
   reputation_score: number;
   total_verifications: number;
   successful_verifications: number;
@@ -154,7 +154,7 @@ export interface ChainAgent {
 }
 
 const STATUSES = ["Pending", "Verified", "Active", "Slashed"] as const;
-const AGENT_TYPES = ["Verifier", "Marker", "Compliance"] as const;
+const AGENT_TYPES = ["Verifier", "Market", "Compliance"] as const;
 
 function decodeProject(raw: Uint8Array): ChainProject {
   let o = 0;

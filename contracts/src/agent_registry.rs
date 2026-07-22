@@ -10,7 +10,7 @@ pub struct AgentRegistry {
 #[odra::odra_type]
 pub enum AgentType {
     Verifier,
-    Marker,
+    Market,
     Compliance,
 }
 
@@ -177,7 +177,7 @@ mod tests {
 
         env.set_caller(non_admin);
         let err = contract
-            .try_register_agent(agent_addr, "Bob".to_string(), AgentType::Marker)
+            .try_register_agent(agent_addr, "Bob".to_string(), AgentType::Market)
             .unwrap_err();
         assert_eq!(err, Error::Unauthorized.into());
     }
@@ -217,7 +217,7 @@ mod tests {
 
         assert!(contract.is_authorized(&agent_addr, &AgentType::Verifier));
         assert!(!contract.is_authorized(&agent_addr, &AgentType::Compliance));
-        assert!(!contract.is_authorized(&agent_addr, &AgentType::Marker));
+        assert!(!contract.is_authorized(&agent_addr, &AgentType::Market));
 
         contract.remove_agent(&agent_addr);
         assert!(!contract.is_authorized(&agent_addr, &AgentType::Verifier));
