@@ -319,3 +319,10 @@ Added `ErrorCard` and `EmptyState` shared components. Every page (dashboard, pro
 
 ### Agent explanation cards
 Three cards on the dashboard explaining Verifier, Compliance, and Market agents with their on-chain identities.
+
+#### v2 Screenshots
+
+<img width="4022" height="6304" alt="screencapture-localhost-3000-2026-07-27-01_22_52" src="https://github.com/user-attachments/assets/e285554a-d7e7-44a8-8e88-2599952cf174" />
+<img width="4022" height="2479" alt="screencapture-localhost-3000-market-2026-07-27-01_21_51" src="https://github.com/user-attachments/assets/bf9dc7f6-31f2-420f-a0ec-9d7befe93f5f" />
+<img width="4022" height="2394" alt="screencapture-localhost-3000-agents-2026-07-27-01_29_39" src="https://github.com/user-attachments/assets/c50cd272-96a8-4872-b256-5b1b3392f6fd" />
+<img width="4022" height="4654" alt="screencapture-localhost-3000-projects-2026-07-27-01_30_36" src="https://github.com/user-attachments/assets/a4036a88-8b42-451f-a26c-23778a5dcdb9" />
