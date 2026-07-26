@@ -3,7 +3,7 @@ import { usePoll } from "@/lib/ui";
 import { ActivityFeed, LoadingRow, Skeleton, StatCard, type ActivityItem } from "@/components/shared";
 import type { ChainProject } from "@/lib/casper-read";
 
-const AGENT_POLL_INTERVAL = 10000;
+const AGENT_POLL_INTERVAL = 30000;
 
 function AgentStatus({ activity }: { activity: ActivityItem[] | null }) {
   const agentLabels = [

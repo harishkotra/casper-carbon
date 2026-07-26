@@ -1,7 +1,8 @@
 import { verifyCarbonProject } from "./lib/llm.js";
 import { loadAgentKeypair, callContractEntryPoint, queryContractState } from "./lib/casper.js";
 import { config } from "./lib/config.js";
-import { fetchProjectByKey, searchProjectsByName } from "./lib/carbonmark.js";
+import { fetchProjectByKey, searchProjectsByName, fetchCarbonPrice } from "./lib/carbonmark.js";
+import { fetchCsprUsdPrice } from "./lib/price.js";
 import { storeReasoning } from "./lib/reasoning-store.js";
 import type { Project, CarbonData, VerificationResult } from "./types.js";
 
@@ -109,7 +110,21 @@ async function submitVerification(
     }
   }
 
-  if (config.MARKETPLACE_CONTRACT_HASH) {
+  if (config.MARKETPLACE_CONTRACT_HASH && config.CARBON_PROJECT_KEY) {
+    let pricePerToken = "15000000000";
+    try {
+      const [carbonPrice, csprPrice] = await Promise.all([
+        fetchCarbonPrice(config.CARBON_PROJECT_KEY),
+        fetchCsprUsdPrice(),
+      ]);
+      if (carbonPrice && csprPrice) {
+        const fairMotes = BigInt(Math.floor((carbonPrice / csprPrice) * 1000000000));
+        pricePerToken = fairMotes.toString();
+        console.log(`[Verifier] Fair price: $${carbonPrice}/tonne × ${csprPrice} CSPR/USD = ${pricePerToken} motes`);
+      }
+    } catch (err) {
+      console.warn(`[Verifier] Price fetch failed, using fallback price:`, err);
+    }
     try {
       const listHash = await callContractEntryPoint(
         config.MARKETPLACE_CONTRACT_HASH,
@@ -117,7 +132,7 @@ async function submitVerification(
         {
           project_id: projectId.toString(),
           amount: String(supply),
-          price_per_token: "15000000000",
+          price_per_token: pricePerToken,
         },
         "5000000000",
       );

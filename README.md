@@ -205,7 +205,7 @@ cp scripts/.env.example scripts/.env
 cp web/.env.example web/.env.local      # add CSPR.cloud token for the activity feed
 
 # 1. (fresh chain only) deploy + wire + register agents
-cd contracts && cargo odra build --backend casper
+cd contracts && cargo +nightly-2026-06-24 odra build   # Odra.toml already has backend=casper
 cd ../scripts && npm i && npm run deploy && npm run fix-setup
 
 # 2. seed demo projects
@@ -285,26 +285,37 @@ Reads and decodes every project, listing, and counter from the live Odra state d
 
 This update (July 2026) adds production-hardening, wallet integration, and polish ahead of the final round.
 
+### Wallet: CSPR.click → direct Casper Wallet
+- **CSPR.click removed** — CDN was too heavy (2MB), caused MaxListeners warnings, regex crash, and machine heating. Replaced with direct `window.CasperWalletProvider()` integration.
+- **`wallet.tsx` rewritten** — calls `requestConnection()` then `getActivePublicKey()` with no SDK dependency
+- **`wallet-button.tsx` simplified** — no `loaded`/`installed` state, just connected/disconnected
+- **WalletBar stripped** — duplicate wallet bar removed from marketplace page
+- **`build-buy` route fixed** — CLValue `newCLUInt32`/`newCLUInt256` casing corrected; `Deploy.toJSON(deploy)` now uses static method
+- **`casper-js-sdk` installed** in `web/` for deploy building on the server side
+- **`submit-deploy` route** proxies signed deploys to Casper RPC `account_put_deploy`
+
 ### Critical bug fixes
 - **Marker → Market** — `AgentType::Marker` renamed to `AgentType::Market` across all contracts, agent files, and TypeScript types
 - **Token minting on verification** — `CarbonProjectRegistry::verify_project` now calls `CarbonCreditToken::mint` so credits are minted atomically with verification
 - **Approve step in listing** — `verifier.ts` calls `approve()` on the token contract before `list()` so the marketplace can transfer credits
 - **Build fixed** — `Odra.toml` pinned to Casper backend, `.cargo/config.toml` added `--allow-undefined`, `rust-toolchain` set to nightly-2026-06-24, Odra deps pinned to `=2.8.0`
-
-### Wallet integration (CSPR.click)
-- `wallet.tsx` — React context + `useWallet` hook wrapping CSPR.click SDK
-- `wallet-button.tsx` — `HeaderWallet` component in the nav bar; `WalletBar` + `BuyButton` on the marketplace page
-- `build-buy` API route — returns unsigned deploy params for any listing
-- `submit-deploy` API route — proxies the user-signed deploy to Casper RPC
+- **Market agent CSPR/USD conversion** — was comparing Carbonmark USD prices directly against CSPR motes without exchange rate; now fetches CSPR price from CoinGecko and converts correctly
+- **Verifier market-aware pricing** — was hardcoding 15 CSPR/tonne; now fetches Carbonmark spot price + CSPR/USD rate and lists at fair market value
 
 ### Agent live status
 Dashboard shows green/gray dot per agent (Verifier, Compliance) based on whether a deploy was seen in the last 40 seconds — refreshed every 10s via CSPR.cloud.
 
 ### Verifiable AI hero section
-New callout on the dashboard explaining the SHA-256 commitment model: every LLM judgment is hash-committed on-chain and verifiable in-browser.
+New callout on the dashboard explaining the SHA-256 commitment model: every LLM judgment is hash-committed on-chain and verifiable in-browser. Plus three agent explanation cards below.
+
+### Polling throttled
+`usePoll` now skips in-flight requests with an `inflight` ref guard; default interval 15s → 30s; agent activity poll 10s → 30s.
 
 ### TypeScript safety
 Removed all `as unknown as T` casts in `agents/src/lib/casper.ts` — replaced with typed union return and explicit `as Type` casts at call sites. Agents and web both compile with `tsc --noEmit`.
 
 ### Error states
 Added `ErrorCard` and `EmptyState` shared components. Every page (dashboard, projects, agents, marketplace) now renders styled error cards on fetch failure and empty-state messages when data is absent.
+
+### Agent explanation cards
+Three cards on the dashboard explaining Verifier, Compliance, and Market agents with their on-chain identities.

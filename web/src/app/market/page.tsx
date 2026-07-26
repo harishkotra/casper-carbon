@@ -7,7 +7,7 @@ import type { ChainListing, ChainProject } from "@/lib/casper-read";
 
 const TARGET_SPREAD_BPS = 50;
 
-function BuyButton({ listingId, amount, price, projectName }: {
+function BuyButton({ listingId, amount, price }: {
   listingId: number; amount: string; price: string; projectName: string;
 }) {
   const { connected, publicKey } = useWallet();
@@ -25,10 +25,20 @@ function BuyButton({ listingId, amount, price, projectName }: {
       const data = await r.json();
       if (data.error) throw new Error(data.error);
 
-      const csprclick = (window as any).csprclick;
-      if (!csprclick?.sign) throw new Error("CSPR.click not available");
+      let wallet: any;
+      const w = window as any;
+      if (typeof w.CasperWalletProvider === "function") {
+        wallet = w.CasperWalletProvider();
+      }
+      if (!wallet) throw new Error("No wallet found — install Casper Wallet");
 
-      const signedDeploy = await csprclick.sign(data.unsignedDeploy);
+      const signFn = wallet.sign || wallet.signDeploy;
+      if (!signFn) throw new Error("Wallet does not support deploy signing");
+
+      const signResult = await signFn.call(wallet, data.unsignedDeployJSON, publicKey.toLowerCase());
+      if (signResult?.cancelled) throw new Error("Signing cancelled");
+      if (signResult?.error) throw new Error(signResult.error);
+      const signedDeploy = signResult.deploy || signResult.signedDeploy || signResult;
       const sub = await fetch("/api/submit-deploy", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,38 +75,6 @@ function BuyButton({ listingId, amount, price, projectName }: {
   );
 }
 
-function WalletBar() {
-  const { connected, publicKey, connect, connecting, disconnect } = useWallet();
-  const [err, setErr] = useState<string | null>(null);
-
-  return (
-    <div className="flex items-center gap-3 text-sm">
-      {connected ? (
-        <>
-          <span className="flex items-center gap-1.5 text-xs text-zinc-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            {publicKey!.slice(0, 8)}…{publicKey!.slice(-4)}
-          </span>
-          <button onClick={disconnect} className="text-xs text-zinc-500 hover:text-zinc-300">
-            disconnect
-          </button>
-        </>
-      ) : (
-        <>
-          {err && <span className="text-xs text-red-400">{err}</span>}
-          <button
-            onClick={() => { setErr(null); connect().catch((e) => setErr(e.message)); }}
-            disabled={connecting}
-            className="rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-700 disabled:opacity-40"
-          >
-            {connecting ? "Connecting…" : "Connect CSPR.click"}
-          </button>
-        </>
-      )}
-    </div>
-  );
-}
-
 export default function MarketPage() {
   const { data: listings, error, loading } = usePoll<ChainListing[]>("/api/listings");
   const { data: projects } = usePoll<ChainProject[]>("/api/projects");
@@ -126,7 +104,6 @@ export default function MarketPage() {
             {TARGET_SPREAD_BPS} bps off-market.
           </p>
         </div>
-        <WalletBar />
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">

@@ -1,6 +1,7 @@
 import { loadAgentKeypair, callContractEntryPoint, queryContractState, getRpcClient } from "./lib/casper.js";
 import { config } from "./lib/config.js";
 import { fetchCarbonPrice } from "./lib/carbonmark.js";
+import { fetchCsprUsdPrice } from "./lib/price.js";
 import type { Listing } from "./types.js";
 
 const TARGET_SPREAD_BPS = 50;
@@ -23,7 +24,14 @@ async function syncListings(): Promise<void> {
     return;
   }
 
+  const csprPrice = await fetchCsprUsdPrice();
+  if (!csprPrice) {
+    console.log(`[Market] No CSPR price available, skipping`);
+    return;
+  }
+
   console.log(`[Market] External spot price: $${externalPrice}/tonne`);
+  console.log(`[Market] CSPR/USD: $${csprPrice}`);
 
   const rpc = getRpcClient();
   const listingCount = await queryContractState(
@@ -36,7 +44,7 @@ async function syncListings(): Promise<void> {
     return;
   }
 
-  const externalPriceMotes = BigInt(Math.floor(externalPrice * 1000000000));
+  const externalPriceMotes = BigInt(Math.floor((externalPrice / csprPrice) * 1000000000));
   let adjusted = 0;
 
   for (let id = 0; id < listingCount; id++) {

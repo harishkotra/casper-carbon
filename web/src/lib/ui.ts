@@ -1,15 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function usePoll<T>(
   url: string,
-  intervalMs = 15000,
+  intervalMs = 30000,
 ): { data: T | null; error: string | null; loading: boolean } {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const inflight = useRef(false);
   useEffect(() => {
     let alive = true;
     async function load() {
+      if (inflight.current) return; // skip if previous request still in-flight
+      inflight.current = true;
       try {
         const res = await fetch(url);
         const json = await res.json();
@@ -18,6 +21,8 @@ export function usePoll<T>(
         else { setData(json); setError(null); }
       } catch (e) {
         if (alive) setError((e as Error).message);
+      } finally {
+        inflight.current = false;
       }
     }
     load();

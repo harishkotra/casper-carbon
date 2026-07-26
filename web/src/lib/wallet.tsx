@@ -17,33 +17,42 @@ const WalletContext = createContext<WalletContextType>({
   disconnect: () => {},
 });
 
+function getProvider() {
+  if (typeof window === "undefined") return null;
+  const w = window as any;
+  if (typeof w.CasperWalletProvider === "function") {
+    return w.CasperWalletProvider();
+  }
+  return null;
+}
+
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
 
   const connect = useCallback(async () => {
-    const w = (window as any).csprclick;
-    if (!w) throw new Error("CSPR.click not installed");
+    const provider = getProvider();
+    if (!provider) throw new Error("No wallet found — install Casper Wallet browser extension");
+
     setConnecting(true);
     try {
-      const result = await w.connect();
-      const pk = result?.activeKey ?? result?.publicKey ?? null;
-      if (pk) setPublicKey(pk);
+      await provider.requestConnection();
+      // After approval, read the active public key
+      let pk: string | null = null;
+      if (provider.getActivePublicKey) {
+        pk = await provider.getActivePublicKey();
+      }
+      if (!pk) throw new Error("No public key returned from wallet");
+      setPublicKey(pk);
     } finally {
       setConnecting(false);
     }
   }, []);
 
   const disconnect = useCallback(() => {
+    const provider = getProvider();
+    if (provider?.disconnect) provider.disconnect().catch(() => {});
     setPublicKey(null);
-  }, []);
-
-  useEffect(() => {
-    const w = (window as any).csprclick;
-    if (w?.isConnected?.()) {
-      const pk = w.getActivePublicKey?.() ?? null;
-      if (pk) setPublicKey(pk);
-    }
   }, []);
 
   return (

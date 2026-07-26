@@ -25,7 +25,7 @@ export function HeaderWallet() {
     <div className="flex items-center gap-2">
       {err && <span className="text-xs text-red-400">{err}</span>}
       <button
-        onClick={() => { setErr(null); connect().catch((e) => setErr(e.message)); }}
+        onClick={() => { setErr(null); connect().catch((e) => setErr(e?.message ?? "Connection failed")); }}
         disabled={connecting}
         className="rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 hover:bg-zinc-700 disabled:opacity-40"
       >
